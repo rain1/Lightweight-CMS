@@ -54,7 +54,7 @@ function hastag_update_use_count($tags_new, $tags_old, $forum)
     $new_tag_list = explode(" ", $tags_new);
     $old_tag_list = explode(" ", $tags_old);
 
-    $merged = array_merge($new_tag_list, $old_tag_list);
+    $merged = array_merge_nulls_as_empty_array($new_tag_list, $old_tag_list);
 
     $tags_relative = array();
     foreach ($merged as $tag) {
@@ -575,7 +575,8 @@ function forum_update_statistics_relative($fid, $topics, $posts)
             ":last_post_title" => $arr['post_title'],
             ":last_post_poster_id" => $arr['user_id'],
             ":last_post_poster_name" => $arr['username'],
-            ":last_post_poster_color" => $arr['user_color']
+            ":last_post_poster_color" => $arr['user_color'],
+            ":fid" => $fid
         )
     ));
 }
@@ -642,11 +643,13 @@ function topic_get_data_ex($topic_id)
 
 function topic_get_info($id)
 {
+    if($id == null){return null;}
     return get_table_contents("topic", "ALL", "WHERE topic_id = " . $id);
 }
 
 function post_get_info($id)
 {
+    if($id == null){return null;}
     return get_table_contents("post", "ALL", "WHERE id = " . $id);
 }
 
@@ -811,7 +814,7 @@ function validate_post($title, $content, $hash_tags, $forum_id, $check_form = tr
     $apporoved = '1';
     if ($check_approved) {
         $apporoved = '0';
-        if (has_permission(array_merge($current_user['permissions']['global'], $current_user['permissions'][$forum_id]), "m_approve_posts||f_no_approval")) {
+        if (has_permission(array_merge_nulls_as_empty_array($current_user['permissions']['global'], $current_user['permissions'][$forum_id]), "m_approve_posts||f_no_approval")) {
             $apporoved = '1';
         }
     }
@@ -1256,7 +1259,7 @@ function topic_get_post_actions($post, $has_topic = true, $js = false, $topic = 
         '((f_mark_solved&&' . $topic_owner . ')||m_mark_solved)&&' . $post['solved'] . '==0' => '<a class="lpadding" ' . $link_start . '"' . $_SERVER['REQUEST_URI'] . $questionmark . '&a=solve&p=' . $id . '"' . $link_end . '>solve</a>',
         '((f_mark_solved&&' . $topic_owner . ')||m_mark_solved)&&' . $post['solved'] . '==1' => '<a class="lpadding" ' . $link_start . '"' . $_SERVER['REQUEST_URI'] . $questionmark . '&a=unsolve&p=' . $id . '"' . $link_end . '>unsolve</a>',
     );
-    $merged = array_merge($current_user['permissions'][$post['forum_id']], $current_user['permissions']['global']);
+    $merged = array_merge_nulls_as_empty_array($current_user['permissions'][$post['forum_id']], $current_user['permissions']['global']);
     foreach ($links as $key => $value) {
         if (has_permission($merged, $key)) {
             array_push($ret, $value);

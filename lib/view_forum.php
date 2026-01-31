@@ -9,7 +9,7 @@ function forum_list_all($fields = 'ALL', $none = false)
             'forum_name' => 'none'
         );
     }
-    $ret = array_merge($ret, get_table_contents(forum, $fields));
+    $ret = array_merge_nulls_as_empty_array($ret, get_table_contents("forum", $fields));
     return $ret;
 }
 
@@ -52,7 +52,7 @@ function forum_get_allowed_topics($forum_id, $start = -1, $end = -1, $show_hidde
 {
     global $current_user, $forum_id_const;
     $sql_add = "";
-    if (has_permission(array_merge($current_user['permissions']['global'], $current_user['permissions'][$forum_id]), "m_approve_posts")) {
+    if (has_permission(array_merge_nulls_as_empty_array($current_user['permissions']['global'], $current_user['permissions'][$forum_id]), "m_approve_posts")) {
         $sql_add .= ' AND is_approved=1';
     }
     if (!$show_hidden) {
@@ -115,12 +115,12 @@ function forum_move_topics($source, $destination)
 
 function forum_get_children($id)
 {
-    return get_table_contents(forum, "ALL", "WHERE parent_id=" . $id);
+    return get_table_contents("forum", "ALL", "WHERE parent_id=" . $id);
 }
 
 function forum_get_children_by_type($id, $type)
 {
-    return get_table_contents(forum, "ALL", "WHERE parent_id=" . $id . " AND forum_type='" . $type . "'");
+    return get_table_contents("forum", "ALL", "WHERE parent_id=" . $id . " AND forum_type='" . $type . "'");
 }
 
 function forum_get_child_list($id)
@@ -144,7 +144,7 @@ function forum_get_type($id)
 
 function forum_get_attachments($id)
 {
-    return get_table_contents(attachments, "ALL", "WHERE forum_id=" . $id);
+    return get_table_contents("attachments", "ALL", "WHERE forum_id=" . $id);
 }
 
 function forum_delete_attachments($id)
@@ -382,6 +382,9 @@ function forum_get_info($forum_id, $debug = false)
     if (is_array($forum_id)) {
         $forum_id = implode(",", $forum_id);
     }
+    if($forum_id == null){
+        $forum_id = "NULL";
+    }
     return get_table_contents("forum", "ALL", "WHERE forum_id IN (" . $forum_id . ") ", $debug);
 }
 
@@ -399,7 +402,7 @@ function forum_get_actions($id, $topic = 0)
     $links = Array(
         'f_start_new' => '<a class="forum_action" href="./?a=new&f=' . $id . '">new</a>',
     );
-    if ($topic > 0 && ($not_locked || has_permission(array_merge($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), "m_edit_posts"))) {
+    if ($topic > 0 && ($not_locked || has_permission(array_merge_nulls_as_empty_array($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), "m_edit_posts"))) {
         $links['f_can_reply'] = '<a class="forum_action" href="./?a=reply&f=' . $id . '&id=' . $topic . '">reply</a>';
     }
 

@@ -93,7 +93,7 @@ class bbcode{
                     }
                     break;
                 }
-                $bbcodes_js = array_to_js(get_table_contents(bbcode,array('bbcode_id','bbcode_hint')),'bbcode',true);
+                $bbcodes_js = array_to_js(get_table_contents("bbcode",array('bbcode_id','bbcode_hint')),'bbcode',true);
                 $this->vars=array(
                     'bbcode' => $bbcodes_js,
                     'hint' => $bbcode_hint,

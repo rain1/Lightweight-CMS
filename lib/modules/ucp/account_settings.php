@@ -64,7 +64,7 @@ function update_current_user(){
             ":email" => $_POST['email'],
             ":facebook" => $_POST['facebook']
         )
-    ),true);
+    ),false);
     if(!$result){$error += 2;}
 
     return $error;

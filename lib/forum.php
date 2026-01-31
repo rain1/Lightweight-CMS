@@ -12,7 +12,7 @@ $arr1 = _mysql_fetch_assoc($result);
 $result = _mysql_query("SELECT count(user_id) AS user_count FROM users WHERE user_password != ''");
 $arr2 = _mysql_fetch_assoc($result);
 
-$statistics = array_merge($arr1, $arr2);
+$statistics = array_merge_nulls_as_empty_array($arr1, $arr2);
 
 
 if(isset($_GET['a'])){
@@ -120,7 +120,7 @@ function display_topic($posts,$tags,$topic,$no_permissions = false){
     $image_container = load_template_file($root_dir."/theme/".$site_settings['template']."/forum_post.html");
     $image_container = template_replace($image_container, array());
     for($i = 0; $i < count($posts); $i++){
-        if($posts[$i]['is_approved']==1 || has_permission(array_merge($current_user['permissions']['global'],$current_user['permissions'][$forum_id_const]) ,"m_approve_posts")){
+        if($posts[$i]['is_approved']==1 || has_permission(array_merge_nulls_as_empty_array($current_user['permissions']['global'],$current_user['permissions'][$forum_id_const]) ,"m_approve_posts")){
             $edit_info = "";
             if($posts[$i]['edit_count'] > 0){
                 $user = user_get_info_by_id($posts[$i]['edit_user_id']);

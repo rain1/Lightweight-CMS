@@ -1,7 +1,7 @@
 <?php
 //die(phpinfo());
 //error_reporting(E_ALL);
-error_reporting(E_COMPILE_ERROR | E_RECOVERABLE_ERROR | E_ERROR | E_CORE_ERROR | E_WARNING);
+error_reporting(E_COMPILE_ERROR | E_RECOVERABLE_ERROR | E_ERROR | E_CORE_ERROR);
 $OPT_NOLIST = true;
 $tab_id = stripslashes(strip_tags($_GET["id"]));
 $user_name = stripslashes(strip_tags($_GET["u"]));
@@ -117,7 +117,7 @@ if (!has_permission_class($current_user['permissions']['global'], "a_") && $CURR
     exit();
 }
 
-if (!has_permission_class(array_merge($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), "m_") && $CURRENT_MODULE == "mcp") {
+if (!has_permission_class(array_merge_nulls_as_empty_array($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), "m_") && $CURRENT_MODULE == "mcp") {
     $FILE_PATH[$CURRENT_MODULE] = '../theme/' . $site_settings['template'] . '/ucp/failure_module.html';
     $notification = "You do not have any moderator permissions.<a href=\"../\">Go to board index</a>";
     load($MAIN_PAGE[$CURRENT_MODULE], $PAGE_TITLE[$CURRENT_MODULE], $FILE_PATH[$CURRENT_MODULE]);

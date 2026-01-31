@@ -1,3 +1,4 @@
 .idea/
+.settings/
 /settings.php
 lib/settings.php

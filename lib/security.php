@@ -7,6 +7,13 @@ $commentS_enabled = 'true';
 $not_locked = false;
 $topics = null;
 
+if (!function_exists('get_magic_quotes_gpc')) {
+    function get_magic_quotes_gpc()
+    {
+        return (bool) ini_get('magic_quotes_gpc');
+    }
+}
+
 function pre_checks(){
     global $allow_attachment, $current_user, $forum_id_const, $site_settings;
     if(get_magic_quotes_gpc() != false){

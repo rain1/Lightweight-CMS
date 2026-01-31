@@ -27,9 +27,9 @@ if(isset($_GET['a'])){
         $thumbs = get_table_contents("","","",false,$query);
         render_thumbs($thumbs);
         $children = forum_get_child_list_by_type($forum_id_const, 2);
-        if(count($children) > 0) {
+        if(count_null_as_zero($children) > 0) {
             $albums = forum_get_info($children);
-            $albums_list = array_copy_dimension($albums, last_post_id);
+            $albums_list = array_copy_dimension($albums, "last_post_id");
             $query = "SELECT DISTINCT topic.topic_id, topic.forum_id,post.time,post.username, post.user_id, post.post_title, post.hashtags, actual_name, post_id, post.id\n FROM topic,post,attachments WHERE\n post.id IN (" . implode(",", $albums_list) . ") AND topic.first_post_id=post.id AND attachments.post_id=post.id AND is_image=1 GROUP BY topic.topic_id ORDER BY type DESC, last_post_time DESC";
             $album_thumbs = get_table_contents("", "", "", false, $query);
             render_galleries($album_thumbs);
@@ -107,7 +107,7 @@ function display_topic($posts,$tags,$topic,$no_permissions = false){
     $image_container = load_template_file($root_dir."/theme/".$site_settings['template']."/view_image.html");
     $image_container = template_replace($image_container,array());
     for($i = 0; $i < count($posts); $i++){
-        if($posts[$i]['is_approved']==1 || has_permission(array_merge($current_user['permissions']['global'],$current_user['permissions'][$forum_id_const]) ,"m_approve_posts")){
+        if($posts[$i]['is_approved']==1 || has_permission(array_merge_nulls_as_empty_array($current_user['permissions']['global'],$current_user['permissions'][$forum_id_const]) ,"m_approve_posts")){
             if($no_permissions){
                 $actions = "";
             }else{

@@ -47,7 +47,7 @@ function display_topic($posts,$tags,$topic, $no_permissions = false){
     $ret = "";
     topic_inc_views($topic[0]['topic_id']);
     for($i = 0; $i < count($posts); $i++){
-        if($posts[$i]['is_approved']==1 || has_permission(array_merge($current_user['permissions']['global'],$current_user['permissions'][$forum_id_const]) ,"m_approve_posts")){
+        if($posts[$i]['is_approved']==1 || has_permission(array_merge_nulls_as_empty_array($current_user['permissions']['global'],$current_user['permissions'][$forum_id_const]) ,"m_approve_posts")){
             if($no_permissions){
                 $actions = "";
             }else{

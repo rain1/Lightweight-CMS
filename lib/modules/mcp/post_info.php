@@ -36,7 +36,10 @@ class post_info{
                         }
                 break;
 		}
+                $post_info = null;
+                if (isset($_GET['p'])) {
                 $post_info = post_get_info($_GET['p']);
+                }
                 if($post_info){
                     $post_info[0]['topic'] = topic_get_info($post_info[0]['topic_id']);
                     $post_info[0]['poster'] = user_get_info_by_id($post_info[0]['user_id']);

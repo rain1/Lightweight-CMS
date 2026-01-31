@@ -30,7 +30,7 @@ class manage_attachments{
             case 'view_orphaned':
                 $this->page_title = $language['module_titles']['manage_orphaned_attachments'];
                 $this->template = "manage_orphaned";
-                $orphaned = @get_table_contents("", "ALL", "", False, "SELECT * FROM (SELECT attachments.*, post.id AS pid FROM attachments LEFT OUTER JOIN post ON attachments.post_id=post.id) AS t1 WHERE pid IS AND attachments.user_id='".$current_user['uid']."' NULL ");
+                $orphaned = @get_table_contents("", "ALL", "", False, "SELECT * FROM (SELECT attachments.*, post.id AS pid FROM attachments LEFT OUTER JOIN post ON attachments.post_id=post.id) AS t1 WHERE pid IS NULL AND t1.user_id='".$current_user['uid']."'");
                 $table_start =  '<table id="oprhaned" class="sortable"><tr><td><b>Download</b></td><td><b>size</b></td><td><b>time</b></td><td><b>Download count</b></td><tr>';
                 $table_end = '</table>';
                 $table_middle = "";

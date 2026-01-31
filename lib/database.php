@@ -1,5 +1,8 @@
 <?php
 $DB = NULL;
+if (!defined('MYSQL_BOTH')) {
+    define('MYSQL_BOTH', 1); // Same value as MYSQLI_BOTH
+}
 
 /*  #FUNCTION# ;===============================================================================
 
@@ -128,6 +131,9 @@ function _mysql_multi_query($query) {
     if($MODE=='mysql'){
         throw new Exception('Not implemented');
     }elseif($MODE=='mysqli'){
+        if($query == null){
+            return false;
+        }
         $res = $DB->multi_query($query);
     }
     $HIT_COUNT ++;

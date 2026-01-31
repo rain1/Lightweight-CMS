@@ -63,7 +63,7 @@ function module_get_tabs($class){
                     $module = NEW $module_name;
                     $permissions_merged = $current_user['permissions']['global'];
                     if($class == 'mcp'){
-                        $permissions_merged = array_merge($current_user['permissions']['global'],$current_user['permissions'][$forum_id_const]);
+                        $permissions_merged = array_merge_nulls_as_empty_array($current_user['permissions']['global'],$current_user['permissions'][$forum_id_const]);
                     }
                     for($w = 0; $w < count($module->module_info['MODULES']); $w++)
                     {

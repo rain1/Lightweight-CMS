@@ -129,7 +129,7 @@ if(isset($_GET['a'])){
             $_GET['p'] = 0;
             if(has_permission($current_user['permissions'][$comments],'f_start_new')){
                 $apporoved =  '0';
-                if(has_permission(array_merge($current_user['permissions']['global'],$current_user['permissions'][$forum_id_const]) ,"m_approve_posts||f_no_approval")){
+                if(has_permission(array_merge_nulls_as_empty_array($current_user['permissions']['global'],$current_user['permissions'][$forum_id_const]) ,"m_approve_posts||f_no_approval")){
                     $apporoved =  '1';
                 }
                 _mysql_prepared_query(array(
@@ -172,7 +172,7 @@ if(isset($_GET['a'])){
             }
             break;
         case 'approve':
-            if(has_permission(array_merge($current_user['permissions']['global'],$current_user['permissions'][$comments]) ,"m_approve_posts")){
+            if(has_permission(array_merge_nulls_as_empty_array($current_user['permissions']['global'],$current_user['permissions'][$comments]) ,"m_approve_posts")){
                 if(isset($_GET['p'])){
                     post_approve($_GET['p']);
                     die("approve_success");
@@ -182,7 +182,7 @@ if(isset($_GET['a'])){
             }
             break;
         case 'viewreport':
-            if(has_permission(array_merge($current_user['permissions']['global'],$current_user['permissions'][$comments]) ,"m_close_reports||f_can_report")){
+            if(has_permission(array_merge_nulls_as_empty_array($current_user['permissions']['global'],$current_user['permissions'][$comments]) ,"m_close_reports||f_can_report")){
                 if(isset($_GET['p'])){
                     $report_details = post_view_report($_GET['p']);
                     if($report_details){
@@ -203,7 +203,7 @@ if(isset($_GET['a'])){
             }
             break;
         case 'report':
-            if(has_permission(array_merge($current_user['permissions']['global'],$current_user['permissions'][$comments]) ,"m_close_reports||f_can_report")){
+            if(has_permission(array_merge_nulls_as_empty_array($current_user['permissions']['global'],$current_user['permissions'][$comments]) ,"m_close_reports||f_can_report")){
                 if(isset($_GET['p'])){
                     if(isset($_POST['report_msg'])){
                         if($_POST['report_msg'] != ""){
@@ -224,7 +224,7 @@ if(isset($_GET['a'])){
             }
             break;
         case 'closereport':
-            if(has_permission(array_merge($current_user['permissions']['global'],$current_user['permissions'][$comments]) ,"m_close_reports")){
+            if(has_permission(array_merge_nulls_as_empty_array($current_user['permissions']['global'],$current_user['permissions'][$comments]) ,"m_close_reports")){
                 if(isset($_GET['p'])){
                     if(post_report_close($_GET['p'])){
                         die("close_report_success");
@@ -263,7 +263,7 @@ if(isset($_GET['a'])){
 }
 
 $approve = "AND is_approved=1 ";
-if(has_permission(array_merge($current_user['permissions']['global'],$current_user['permissions'][$comments]) ,"m_approve_posts")){
+if(has_permission(array_merge_nulls_as_empty_array($current_user['permissions']['global'],$current_user['permissions'][$comments]) ,"m_approve_posts")){
     $approve = "";
 }
 $sql = "SELECT id, time, post.user_id, data, users.username, edit_locked, forum_id,is_approved,reported , post.solved FROM post, users WHERE post.user_id=users.user_id AND post_title=".$_GET['id']." ".$approve." ORDER BY time DESC";

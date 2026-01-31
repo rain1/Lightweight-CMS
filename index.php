@@ -1,5 +1,5 @@
 <?php
-error_reporting(E_COMPILE_ERROR | E_RECOVERABLE_ERROR | E_ERROR | E_CORE_ERROR | E_WARNING | E_PARSE | E_USER_WARNING | E_USER_ERROR);
+error_reporting(E_COMPILE_ERROR | E_RECOVERABLE_ERROR | E_ERROR | E_CORE_ERROR | E_PARSE | E_USER_WARNING | E_USER_ERROR);
 $post_params_form = '';
 
 $notification_back_link = '<br> <a href="{%$redirect_to%}" >Go back</a> OR <a href="./">Go to board index</a>';
@@ -78,11 +78,15 @@ $posts_js = '';
 function do_action()
 {
     global $topic_data, $current_user, $forum_id_const, $site_settings, $acp_action, $language, $no_link, $yes_link, $confirm, $editor, $form_id, $notification, $title_warning, $not_locked, $target_forums, $tags, $attachment_list, $report_details, $msg, $notification_back_link, $forum_info, $posts_js, $attachment_list_ex, $lock_post, $post_params_form;
-    $post = post_get_info($_GET['p']);
-    $not_edit_locked = $post[0]['edit_locked'] == '0';
+    $not_edit_locked = null;
+    $post == null;
+    if(isset($_GET['p'])){
+        $post = post_get_info($_GET['p']);
+        $not_edit_locked = $post[0]['edit_locked'] == '0';
+    }
     switch ($_GET['a']) {
         case 'setorder':
-            if (has_permission(array_merge($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), 'm_reorder')) {
+            if (has_permission(array_merge_nulls_as_empty_array($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), 'm_reorder')) {
                 post_set_order($_GET['p'], $_POST['order']);
                 die('success');
             } else {
@@ -155,6 +159,8 @@ function do_action()
             break;
         case 'edit' :
             $editor = post_get_info($_GET['p']);
+            $editor[0]['data'] = decode_input($editor[0]['data']);
+            $post[0]['data'] = decode_input($post[0]['data']);
             $topic_data = $title_warning . '<h2 style="margin: 0px 0px 1em 0px; padding: 0px;">' . $post[0]['post_title'] . '</h2><br>' . parse_bbcode($post[0]['data'], bbcode_to_regex($tags, 'bbcode', 'bbcode_html'), array(), true, true);
             if (topic_check_permissions('edit_post', $not_locked, $not_edit_locked, $post[0]['forum_id'])) {
                 $acp_action = './theme/' . $site_settings['template'] . '/ajaxpost.html';
@@ -163,7 +169,7 @@ function do_action()
                 $attachment_list = array_copy_dimension($attachments, 'id');
                 $attachment_list = array_to_js($attachment_list, 'AttachmentList');
                 $attachment_list_ex = array_to_js($attachments, 'AttachmentListEx', true, true);
-                if (has_permission(array_merge($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), 'm_reorder')) {
+                if (has_permission(array_merge_nulls_as_empty_array($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), 'm_reorder')) {
                     if ($editor[0]['edit_locked'] == '1') {
                         $lock_post = $language['ui']['lock_edit'] . ': <input checked="checked" name="lock" type="checkbox">';
                     } else {
@@ -189,7 +195,7 @@ function do_action()
                 $acp_action = './theme/' . $site_settings['template'] . '/ucp/failure_module.html';
                 $notification = $language['notifications']['new'] . $notification_back_link;
             }
-            if (has_permission(array_merge($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), 'm_reorder')) {
+            if (has_permission(array_merge_nulls_as_empty_array($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), 'm_reorder')) {
                 $lock_post = $language['ui']['lock_edit'] . ': <input name="lock" type="checkbox">';
             }
             break;
@@ -206,7 +212,7 @@ function do_action()
             }
             break;
         case 'approve':
-            if (has_permission(array_merge($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), 'm_approve_posts')) {
+            if (has_permission(array_merge_nulls_as_empty_array($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), 'm_approve_posts')) {
                 if (isset($_GET['p'])) {
                     post_approve($_GET['p']);
                     $acp_action = './theme/' . $site_settings['template'] . '/ucp/success_module.html';
@@ -219,7 +225,7 @@ function do_action()
             }
             break;
         case 'viewreport':
-            if (has_permission(array_merge($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), 'm_close_reports||f_can_report')) {
+            if (has_permission(array_merge_nulls_as_empty_array($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), 'm_close_reports||f_can_report')) {
                 if (isset($_GET['p'])) {
                     $report_details = post_view_report($_GET['p']);
                     if ($report_details) {
@@ -236,7 +242,7 @@ function do_action()
             }
             break;
         case 'report':
-            if (has_permission(array_merge($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), 'm_close_reports||f_can_report')) {
+            if (has_permission(array_merge_nulls_as_empty_array($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), 'm_close_reports||f_can_report')) {
                 if (isset($_GET['p'])) {
                     if (isset($_POST['report_msg'])) {
                         if ($_POST['report_msg'] != '') {
@@ -262,7 +268,7 @@ function do_action()
             }
             break;
         case 'closereport':
-            if (has_permission(array_merge($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), 'm_close_reports')) {
+            if (has_permission(array_merge_nulls_as_empty_array($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), 'm_close_reports')) {
                 if (isset($_GET['p'])) {
                     if (post_report_close($_GET['p'])) {
                         $name = post_get_info($_GET['p']);
@@ -324,7 +330,7 @@ function do_action()
         case 'mod':
             switch ($_POST['action']) {
                 case 'reorder':
-                    if (has_permission(array_merge($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), 'm_reorder')) {
+                    if (has_permission(array_merge_nulls_as_empty_array($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), 'm_reorder')) {
                         $acp_action = './theme/' . $site_settings['template'] . '/reorder.html';
                         $posts = topic_get_data($_GET['id']);
                         for ($i = 0; $i < count($posts); $i++) {
@@ -338,7 +344,7 @@ function do_action()
                     }
                     break;
                 case 'hide':
-                    if (has_permission(array_merge($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), 'm_hide_topic')) {
+                    if (has_permission(array_merge_nulls_as_empty_array($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), 'm_hide_topic')) {
                         topic_hide($_GET['id'], 1);
                     }
                     $acp_action = './theme/' . $site_settings['template'] . '/ucp/success_module.html';
@@ -346,7 +352,7 @@ function do_action()
                     redirect(3, './?f=' . $forum_id_const . '&id=' . $_GET['id']);
                     break;
                 case 'unhide':
-                    if (has_permission(array_merge($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), 'm_hide_topic')) {
+                    if (has_permission(array_merge_nulls_as_empty_array($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), 'm_hide_topic')) {
                         topic_hide($_GET['id'], 0);
                     }
                     $acp_action = './theme/' . $site_settings['template'] . '/ucp/success_module.html';
@@ -354,9 +360,9 @@ function do_action()
                     redirect(3, './?f=' . $forum_id_const . '&id=' . $_GET['id']);
                     break;
                 case 'lock':
-                    if (has_permission(array_merge($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), 'm_lock_posts')) {
+                    if (has_permission(array_merge_nulls_as_empty_array($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), 'm_lock_posts')) {
                         topic_lock($_GET['id'], 1);
-                    } elseif (has_permission(array_merge($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), 'f_lock_own')) {
+                    } elseif (has_permission(array_merge_nulls_as_empty_array($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), 'f_lock_own')) {
                         if (topic_get_owner($_GET['id']) == $current_user['uid']) {
                             topic_lock($_GET['id'], 1);
                         }
@@ -366,9 +372,9 @@ function do_action()
                     redirect(3, './?f=' . $forum_id_const . '&id=' . $_GET['id']);
                     break;
                 case 'unlock':
-                    if (has_permission(array_merge($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), 'm_lock_posts')) {
+                    if (has_permission(array_merge_nulls_as_empty_array($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), 'm_lock_posts')) {
                         topic_lock($_GET['id'], 0);
-                    } elseif (has_permission(array_merge($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), 'f_lock_own')) {
+                    } elseif (has_permission(array_merge_nulls_as_empty_array($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), 'f_lock_own')) {
                         if (topic_get_owner($_GET['id']) == $current_user['uid']) {
                             topic_lock($_GET['id'], 0);
                         }
@@ -378,7 +384,7 @@ function do_action()
                     redirect(3, './?f=' . $forum_id_const . '&id=' . $_GET['id']);
                     break;
                 case 'move':
-                    if (has_permission(array_merge($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), 'm_move_posts')) {
+                    if (has_permission(array_merge_nulls_as_empty_array($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), 'm_move_posts')) {
                         if (isset($_POST['fid']) && intval($_POST['fid']) > 0) {
                             $allowed_forums = get_allowed_forums('-1', true);
                             $is_allowed = false;
@@ -407,7 +413,7 @@ function do_action()
                     }
                     break;
                 case 'normal':
-                    if (has_permission(array_merge($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), 'f_post_ann||f_post_sticky')) {
+                    if (has_permission(array_merge_nulls_as_empty_array($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), 'f_post_ann||f_post_sticky')) {
                         topic_set_type($_GET['id'], 0);
                     }
                     $acp_action = './theme/' . $site_settings['template'] . '/ucp/success_module.html';
@@ -415,7 +421,7 @@ function do_action()
                     redirect(3, './?f=' . $forum_id_const . '&id=' . $_GET['id']);
                     break;
                 case 'sticky':
-                    if (has_permission(array_merge($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), 'f_post_sticky')) {
+                    if (has_permission(array_merge_nulls_as_empty_array($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), 'f_post_sticky')) {
                         topic_set_type($_GET['id'], 1);
                     }
                     $acp_action = './theme/' . $site_settings['template'] . '/ucp/success_module.html';
@@ -423,7 +429,7 @@ function do_action()
                     redirect(3, './?f=' . $forum_id_const . '&id=' . $_GET['id']);
                     break;
                 case 'announce':
-                    if (has_permission(array_merge($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), 'f_post_ann')) {
+                    if (has_permission(array_merge_nulls_as_empty_array($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), 'f_post_ann')) {
                         topic_set_type($_GET['id'], 2);
                     }
                     $acp_action = './theme/' . $site_settings['template'] . '/ucp/success_module.html';
@@ -432,9 +438,9 @@ function do_action()
                     break;
                 case 'delete':
                     if (isset($_GET['confirm']) && $_GET['confirm'] == 'yes') {
-                        if (has_permission(array_merge($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), 'm_delete_posts')) {
+                        if (has_permission(array_merge_nulls_as_empty_array($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), 'm_delete_posts')) {
                             topic_delete($_GET['id']);
-                        } elseif (has_permission(array_merge($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), 'f_delete_own')) {
+                        } elseif (has_permission(array_merge_nulls_as_empty_array($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), 'f_delete_own')) {
                             if ($not_locked && topic_get_owner($_GET['id']) == $current_user['uid']) {
                                 topic_delete($_GET['id']);
                             }
@@ -465,7 +471,7 @@ function do_action()
             if (topic_get_owner(post_get_topic($_GET['p'])) == $current_user['uid']) {
                 $topic_owner = 'true';
             }
-            if (has_permission(array_merge($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), '((f_mark_solved&&' . $topic_owner . ')||m_mark_solved)&&' . $post[0]['solved'] . '==0')) {
+            if (has_permission(array_merge_nulls_as_empty_array($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), '((f_mark_solved&&' . $topic_owner . ')||m_mark_solved)&&' . $post[0]['solved'] . '==0')) {
                 post_set_solved($post[0]['id'], '1');
                 $acp_action = './theme/' . $site_settings['template'] . '/ucp/success_module.html';
                 $notification = $language['notifications']['solve_success'] . $notification_back_link;
@@ -477,7 +483,7 @@ function do_action()
             if (topic_get_owner(post_get_topic($_GET['p'])) == $current_user['uid']) {
                 $topic_owner = 'true';
             }
-            if (has_permission(array_merge($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), '((f_mark_solved&&' . $topic_owner . ')||m_mark_solved)&&' . $post[0]['solved'] . '==1')) {
+            if (has_permission(array_merge_nulls_as_empty_array($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), '((f_mark_solved&&' . $topic_owner . ')||m_mark_solved)&&' . $post[0]['solved'] . '==1')) {
                 post_set_solved($post[0]['id'], '0');
                 $acp_action = './theme/' . $site_settings['template'] . '/ucp/success_module.html';
                 $notification = $language['notifications']['unsolve_success'] . $notification_back_link;
@@ -496,7 +502,6 @@ function do_action()
 
 $login_form = get_login_form();
 $load = array('File', 'if');
-
 $include = false;
 if ($forum_info[0]['forum_password'] == '') {
     $include = true;

@@ -26,7 +26,7 @@ function render_logs($type)
 {
     $logs = get_table_contents('log', 'ALL', " WHERE type='" . $type . "'");
     $ret = "";
-    for ($i = 0; $i < count($logs); $i++) {
+    for ($i = 0; $i < count_null_as_zero($logs); $i++) {
         $ret .= '<tr><td><a href="../profile.php?uid=' . $logs[$i]['user_id'] . '">' . $logs[$i]['user'] . '</a></td><td>' . $logs[$i]['ip'] . '</td><td>' . $logs[$i]['action'] . '</td><td>' . $logs[$i]['message'] . '</td><td>' . $logs[$i]['time'] . '</td></tr>';
     }
     return $ret;
@@ -117,7 +117,8 @@ function render_attachment($attachments, $post, $render_image = false, $render_n
 
     $attachment_file = load_template_file($root_dir . "/theme/" . $site_settings['template'] . "/attachment.html");
     $image_found = false;
-    for ($j = 0; $j < count($attachments); $j++) {
+    if($attachments != null){
+    for ($j = 0; $j < count_null_as_zero($attachments); $j++) {
         if ($forum_info['0']['forum_type'] == 2 && $attachments[$j]['is_image'] == 1 && !$image_found) {
             $image_found = true;
             $image_width = $attachments[$j]['width'];
@@ -160,6 +161,7 @@ function render_attachment($attachments, $post, $render_image = false, $render_n
             $attachments_tmp .= strtr($attachment_file, $replacements);
         }
     }
+    }
     if ($attachments_tmp != "<br><br>" && $attachments_tmp != "") {
         $attachments_tmp = "<br><br><b>Attachments:</b><br>" . $attachments_tmp;
     }
@@ -178,7 +180,7 @@ function render_thumbs($thumbs)
     $thumbnails = "";
     //<a href="./?id='.$thumbs[$i]['topic_id'].'&f='.$forum_id_const.'"></a>
     if ($thumbs !== false) {
-        for ($i = 0; $i < count($thumbs); $i++) {
+        for ($i = 0; $i < count_null_as_zero($thumbs); $i++) {
             if (!isset($thumbs[$i]['topic_id'])) {
                 $thumbs[$i]['topic_id'] = $thumbs[$i]['id'];
             }
@@ -189,8 +191,8 @@ function render_thumbs($thumbs)
     $tags = get_table_contents("", "", "", false, "SELECT tag FROM hashtags WHERE forum_id = '" . $forum_id_const . "' ORDER BY hit_count DESC LIMIT 0 , 10");
 
     $POPULAR_TAGS = "";
-    if ($_GET['a'] != 'search') {
-        for ($i = 0; $i < count($tags); $i++) {
+    if ($_GET['a'] != 'search' && $tags != null) {
+        for ($i = 0; $i < count_null_as_zero($tags); $i++) {
             $POPULAR_TAGS .= '<a class="hashtag" href="./?a=search&type=' . $forum_info[0]['forum_type'] . '&q=' . $tags[$i]['tag'] . '">#' . str_replace("_", " ", $tags[$i]['tag']) . "</a> ";
         }
         $POPULAR_TAGS = '<div style="text-align: center;font-size: 20px;" >Popular tags: ' . $POPULAR_TAGS . '<br><br></div>';
@@ -211,8 +213,8 @@ function render_galleries($thumbs)
     global $galleries, $render_albums, $forum_id_const, $attachment_list, $CURRENT_TOPIC, $FORUM_ACTIONS, $acp_action, $site_settings, $POPULAR_TAGS, $forum_info;
     $galleries = "";
     if ($thumbs !== false) {
-        $render_albums = count($thumbs) > 0;
-        for ($i = 0; $i < count($thumbs); $i++) {
+        $render_albums = count_null_as_zero($thumbs) > 0;
+        for ($i = 0; $i < count_null_as_zero($thumbs); $i++) {
             if (!isset($thumbs[$i]['topic_id'])) {
                 $thumbs[$i]['topic_id'] = $thumbs[$i]['id'];
             }
@@ -235,7 +237,7 @@ function render_hashtags($str)
     $arr = explode(" ", $str);
     $ret = "";
     $type = isset($_GET['type']) ? $_GET['type'] : $forum_info[0]['forum_type'];
-    for ($i = 0; $i < count($arr); $i++) {
+    for ($i = 0; $i < count_null_as_zero($arr); $i++) {
         $ret .= '<a class="hashtag" href="./?a=search&type=' . $type . '&q=' . $arr[$i] . '">#' . str_replace("_", " ", $arr[$i]) . "</a> ";
     }
     return $ret . "";
@@ -303,7 +305,7 @@ function render_forum_path()
 
     $forum_path = forum_get_path_linked($forum_id_const);
     $forum_links_list = get_allowed_forums($forum_info[0]['parent_id']);
-    for ($i = 0; $i < count($forum_links_list); $i++) {
+    for ($i = 0; $i < count_null_as_zero($forum_links_list); $i++) {
         if ($forum_links_list[$i]['forum_id'] == $forum_id_const) {
             $forum_path .= '<a id="selected_forum" href="./?f=' . $forum_links_list[$i]['forum_id'] . '">' . $forum_links_list[$i]['forum_name'] . '</a> ';
             $forum_links_tabs .= '<a id="selected_forum" href="./?f=' . $forum_links_list[$i]['forum_id'] . '">' . $forum_links_list[$i]['forum_name'] . '</a> ';
@@ -359,8 +361,8 @@ function render_search()
 
 
         $forum_list = get_allowed_forums($forum_id_const);
-        $links_list_sub = count($forum_list) > 0 ? "" : "None<br>";
-        for ($i = 0; $i < count($forum_list); $i++) {
+        $links_list_sub = count_null_as_zero($forum_list) > 0 ? "" : "None<br>";
+        for ($i = 0; $i < count_null_as_zero($forum_list); $i++) {
             $links_list_sub .= '<a href="./?f=' . $forum_list[$i]['forum_id'] . '">' . $forum_list[$i]['forum_name'] . '</a><br>';
         }
         $links_list_sub .= "<br>";
@@ -368,21 +370,21 @@ function render_search()
         if ($topics != null) {
             $prev_link = str_replace(array(" ", "&"), array("_", "&amp;"), '?id=' . $topics[0]['topic_id']);
             $next_link = str_replace(array(" ", "&"), array("_", "&amp;"), '?id=' . $topics[0]['topic_id']);
-            for ($i = 0; $i < count($topics); $i++) {
+            for ($i = 0; $i < count_null_as_zero($topics); $i++) {
                 $add_item = false;
                 $class = "";
                 if ($topics[$i]['hidden'] == "0") {
                     $add_item = true;
                 }
-                if ($add_item == false && has_permission(array_merge($current_user['permissions'][$forum_id_const], $current_user['permissions']['global']), 'f_view_hidden||m_hide_topic')) {
+                if ($add_item == false && has_permission(array_merge_nulls_as_empty_array($current_user['permissions'][$forum_id_const], $current_user['permissions']['global']), 'f_view_hidden||m_hide_topic')) {
                     $add_item = true;
                     $class = "hidden";
                 }
                 if ($add_item) {
                     $current = '';
                     if ($topics[$i]['topic_id'] == $_GET['id']) {
-                        $prev = $i == 0 ? count($topics) - 1 : $i - 1;
-                        $next = $i == (count($topics) - 1) ? 0 : $i + 1;
+                        $prev = $i == 0 ? count_null_as_zero($topics) - 1 : $i - 1;
+                        $next = $i == (count_null_as_zero($topics) - 1) ? 0 : $i + 1;
                         $prev_link = str_replace(array(" ", "&"), array("_", "&amp;"), '?id=' . $topics[$prev]['topic_id']);
                         $next_link = str_replace(array(" ", "&"), array("_", "&amp;"), '?id=' . $topics[$next]['topic_id']);
                         $current = 'id="current_topic"';
@@ -409,12 +411,12 @@ function define_bbcodes()
     $tags = get_table_contents("bbcode", 'ALL');
     $tagsE = array();
 
-    for ($i = 0; $i < count($tags); $i++) {
+    for ($i = 0; $i < count_null_as_zero($tags); $i++) {
         if ($tags[$i]['bbcode_show']) {
             $tagsE[] = $tags[$i];
         }
     }
-    $len = count($tagsE);
+    $len = count_null_as_zero($tagsE);
     $code = 'bbcode["' . $len . '"] = [];
     bbcode["' . $len . '"]["bbcode_hint"] = "Code";
     bbcode["' . $len . '"]["bbcode"] = "[code={lang}]{text}[/code]";
@@ -434,38 +436,38 @@ function get_mod_tools()
     global $forum_id_const, $current_user, $not_locked, $language;
     $not_locked_str = $not_locked ? 'true' : 'false';
     $is_owner = topic_get_owner($_GET['id']) == $current_user['uid'] ? "true" : "false";
-    if (has_permission(array_merge($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]),
+    if (has_permission(array_merge_nulls_as_empty_array($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]),
         "(f_lock_own&&$is_owner)||m_hide_topic||m_lock_posts||m_move_posts||f_post_ann||f_post_sticky||m_delete_posts||(f_delete_own&&$is_owner&&$not_locked_str)")) {
         $form = '
     <form action="?id=' . $_GET['id'] . '&a=mod" method="post" style="padding-top: 3px;">
     ' . $language['ui']['actions'] . ':
     <select name="action">';
-        if (has_permission(array_merge($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), "(f_lock_own&&$is_owner)||m_lock_posts")) {
+        if (has_permission(array_merge_nulls_as_empty_array($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), "(f_lock_own&&$is_owner)||m_lock_posts")) {
             if (topic_is_locked($_GET['id']) == 1) {
                 $form .= '<option value="unlock">Unlock topic</option>';
             } else {
                 $form .= '<option value="lock">Lock topic</option>';
             }
         }
-        if (has_permission(array_merge($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), "m_move_posts")) {
+        if (has_permission(array_merge_nulls_as_empty_array($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), "m_move_posts")) {
             $form .= '<option value="move">Move topic</option>';
         }
-        if (has_permission(array_merge($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), "f_post_ann||f_post_sticky")) {
+        if (has_permission(array_merge_nulls_as_empty_array($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), "f_post_ann||f_post_sticky")) {
             $form .= '<option value="normal">Change to normal</option>';
         }
-        if (has_permission(array_merge($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), "f_post_sticky")) {
+        if (has_permission(array_merge_nulls_as_empty_array($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), "f_post_sticky")) {
             $form .= '<option value="sticky">Change to sticky</option>';
         }
-        if (has_permission(array_merge($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), "f_post_ann")) {
+        if (has_permission(array_merge_nulls_as_empty_array($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), "f_post_ann")) {
             $form .= '<option value="announce">Change to announcement</option>';
         }
-        if (has_permission(array_merge($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), "m_delete_posts||(f_delete_own&&$is_owner&&$not_locked_str)")) {
+        if (has_permission(array_merge_nulls_as_empty_array($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), "m_delete_posts||(f_delete_own&&$is_owner&&$not_locked_str)")) {
             $form .= '<option value="delete">Delete topic</option>';
         }
-        if (has_permission(array_merge($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), "m_reorder")) {
+        if (has_permission(array_merge_nulls_as_empty_array($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), "m_reorder")) {
             $form .= '<option value="reorder">Change posts order</option>';
         }
-        if (has_permission(array_merge($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), "m_hide_topic")) {
+        if (has_permission(array_merge_nulls_as_empty_array($current_user['permissions']['global'], $current_user['permissions'][$forum_id_const]), "m_hide_topic")) {
             if (topic_is_hidden($_GET['id']) == 0) {
                 $form .= '<option value="hide">hide topic</option>';
             } else {
@@ -576,7 +578,7 @@ function render_preview($a = ""){
         if($_GET['p'] > 0 ){
             $post_where = "post_id=".$_GET['p']." OR";
         }
-        $attachment_list = array_copy_dimension(get_table_contents(attachments,"id", " WHERE ".$post_where ." form=".$_GET['form'] ),'id');
+        $attachment_list = array_copy_dimension(get_table_contents("attachments","id", " WHERE ".$post_where ." form=".$_GET['form'] ),'id');
         $attachment_list = array_to_js($attachment_list,"AttachmentList");
     }else{
         $acp_action = "./theme/".$site_settings['template']."/ucp/failure_module.html";

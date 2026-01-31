@@ -143,7 +143,7 @@ class warn_user{
                     if(isset($_POST['username'])){
                         $uid = user_get_id_by_name($_POST['username']);
                         if($uid){
-                            $query = "SELECT ".warn.".*, COALESCE(post.post_title,'') AS post_title FROM warn LEFT JOIN post ON post.id = warn.post_id AND post.user_id=warn.user_id WHERE warn.user_id=".$uid;
+                            $query = "SELECT warn.*, COALESCE(post.post_title,'') AS post_title FROM warn LEFT JOIN post ON post.id = warn.post_id AND post.user_id=warn.user_id WHERE warn.user_id=".$uid;
                             $warn_list = get_table_contents("","","",false, $query, array('time'));
                             $warn_js = json_encode($warn_list);
                             $this->template = "warn_user";

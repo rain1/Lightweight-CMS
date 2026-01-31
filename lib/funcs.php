@@ -6,6 +6,22 @@
 $HIT_COUNT = 0;
 $milliseconds = round(microtime(true) * 1000);
 
+function count_null_as_zero($arg){
+    if($arg == null){
+        return 0;
+    }
+    return count($arg);
+}
+
+function array_merge_nulls_as_empty_array(...$arrays) {
+    $non_nulls = [];
+    foreach ($arrays as $arr) {
+        $non_nulls[] = $arr ?? [];
+    }
+    return array_merge(...$non_nulls);
+}
+
+
 /**
  * Returns time php script has been running for
  * @return integer time milliseconds that php script has ran for
@@ -46,7 +62,7 @@ if(!$DB_CONNECTION){
 }
 
 $site_settings = get_table_contents("general",array('setting','value'));
-for ($i = 0;$i < count($site_settings);$i++)
+for ($i = 0;$i < count_null_as_zero($site_settings);$i++)
 {
     $aNew[$site_settings[$i]['setting']] = $site_settings[$i]['value'];
 }
@@ -100,7 +116,7 @@ function success_message_ex($bSuccess, $sSuccessMsg, $sFailMsg, $sSuccessBackLin
 
 function array_to_key_value($arr,$key,$value){
     $new = array();
-    for ($i = 0; $i < count($arr); $i++) {
+    for ($i = 0; $i < count_null_as_zero($arr); $i++) {
         $new[$arr[$i][$key]] = $arr[$i][$value];
     }
     return $new;
@@ -116,7 +132,7 @@ function random_string($len)
     $str = "";
     for($i = 0;$i < $len;$i++)
     {
-        $str .= $chr[rand(0, count($chr)-1)];
+        $str .= $chr[rand(0, count_null_as_zero($chr)-1)];
     }
     return $str;
 }
@@ -141,7 +157,7 @@ Example .......:
 //~ {
 	//~ global $DB_TABLES;
 	//~ $keys = array_keys($DB_TABLES);
-	//~ for($i = 0;$i < count($keys);$i++)
+	//~ for($i = 0;$i < count_null_as_zero($keys);$i++)
 	//~ {
 		//~ $var_name = $DB_TABLES[$keys[$i]];
 		//~ eval('global '.$var_name.'; $array = '.$var_name.';');
@@ -275,7 +291,7 @@ Example .......:
 function implode_string($delimiter, $array, $quote = "'")
 {
     $str = '';
-    for($i = 0;$i < count($array);$i++)
+    for($i = 0;$i < count_null_as_zero($array);$i++)
     {
         $str .= $quote.$array[$i].$quote.$delimiter;
     }
@@ -395,7 +411,7 @@ function sting_replace_var($string){
 			if (strlen($VarDimension) > 0) {
 				$VarDimension = str_replace("]","",$VarDimension);
 				$arrayParts = explode("[",$VarDimension);
-				for ($varlist = 0; $varlist < count($arrayParts); $varlist++){
+				for ($varlist = 0; $varlist < count_null_as_zero($arrayParts); $varlist++){
 					if (StringLeft($arrayParts[$varlist],1) == '$'){eval('global '.$arrayParts[$varlist].';');}
 				}
 			}
@@ -630,7 +646,7 @@ Link ..........:
 Example .......:
 ;==========================================================================================*/
 function template_replace($string,$aLoad) {
-	for ($i = 0;$i < count($aLoad);$i++){
+	for ($i = 0;$i < count_null_as_zero($aLoad);$i++){
 		eval('$string = replace_'.$aLoad[$i].'($string);');
 	}
 	//~ $data = Stingreplace_file($string,$path);
@@ -662,17 +678,17 @@ Example .......:
 function array_to_combo($array, $sKey = "NULL", $svalueKey = "NULL", $istart_at = 0, $iend_at = 0){
 	$str = "";
 	if ($sKey == "NULL"){
-		for ($i = $istart_at; $i < max($iend_at,count($array));$i++)
+		for ($i = $istart_at; $i < max($iend_at,count_null_as_zero($array));$i++)
 		{
 			$str .= '<option value="'.$i.'">'.$array[$i].'</option>'."\n";
 		}
 	}elseif($sKey != "NULL" && $svalueKey != "NULL"){
-		for ($i = $istart_at; $i < max($iend_at,count($array));$i++)
+		for ($i = $istart_at; $i < max($iend_at,count_null_as_zero($array));$i++)
 		{
 			$str .= '<option value="'.$array[$i][$svalueKey].'">'.$array[$i][$sKey].'</option>'."\n";
 		}
 	}else{
-		for ($i = $istart_at; $i < max($iend_at,count($array));$i++)
+		for ($i = $istart_at; $i < max($iend_at,count_null_as_zero($array));$i++)
 		{
 			$str .= '<option value="'.$i.'">'.$array[$i][$sKey].'</option>'."\n";
 		}
@@ -697,7 +713,7 @@ Example .......:
 ;==========================================================================================*/
 function array_copy_dimension($array,$Dimension)
 {
-	for ($i = 0;$i < count($array);$i++)
+	for ($i = 0;$i < count_null_as_zero($array);$i++)
 	{
 		$aNew[$i] = $array[$i][$Dimension];
 	}
@@ -727,7 +743,7 @@ function array_to_js($array,$sArrayname,$b2D = false, $bWrapQuotes = false){
     if($array == null){return $sRet;}
 	if ($b2D){
 		$aMainKeys = array_keys($array);
-		for ($i = 0; $i < count($aMainKeys);$i++)
+		for ($i = 0; $i < count_null_as_zero($aMainKeys);$i++)
 		{
 			$aSubKeys = array_keys($array[$aMainKeys[$i]]);
                         if ($bWrapQuotes) {
@@ -735,7 +751,7 @@ function array_to_js($array,$sArrayname,$b2D = false, $bWrapQuotes = false){
                         }else{
                             $sRet .= $sArrayname.'['.$aMainKeys[$i].'] = [];'."\n";
                         }
-			for ($j = 0; $j < count($aSubKeys);$j++)
+			for ($j = 0; $j < count_null_as_zero($aSubKeys);$j++)
 			{
                 if ($bWrapQuotes) {
                     $sRet .= $sArrayname.'["'.$aMainKeys[$i].'"]["'.$aSubKeys[$j].'"] = "'.str_replace(array('\\','"',"\n","\r"),array('\\\\','\\"','\n', '\r'),$array[$aMainKeys[$i]][$aSubKeys[$j]]).'";'."\n";
@@ -747,7 +763,7 @@ function array_to_js($array,$sArrayname,$b2D = false, $bWrapQuotes = false){
 
 	}else{
 		$aMainKeys = array_keys($array);
-		for ($i = 0; $i < count($aMainKeys);$i++){
+		for ($i = 0; $i < count_null_as_zero($aMainKeys);$i++){
 			$sRet .= $sArrayname.'['.$aMainKeys[$i].'] = "'.$array[$aMainKeys[$i]].'";'."\n";
 		}
 	}
@@ -782,7 +798,7 @@ function get_table_contents($sTable,$aColumns = 'ALL', $sExtraSQL = '', $debug =
         $aColumns = array($aColumns);
     }
 
-    if ($aColumns == 'ALL'){
+    if ($aColumns == 'ALL' && $rawinput == null){
         unset($aColumns);// We cant just use string array.
         $result = _mysql_query("SHOW COLUMNS FROM ".$sTable);
 
@@ -835,7 +851,7 @@ function get_table_contents($sTable,$aColumns = 'ALL', $sExtraSQL = '', $debug =
 
             if($data !== null) {
                     $aReturn[$iCount][$aColumns[0]] = $data;
-                    for($i = 1; $i < count($aColumns); $i++) {
+                    for($i = 1; $i < count_null_as_zero($aColumns); $i++) {
                             $aReturn[$iCount][$aColumns[$i]] = strval(@_mysql_result($result, $iCount , $aColumns[$i]));
                     }
                     if($debug){dbg($aReturn[$iCount]);}
@@ -848,10 +864,10 @@ function get_table_contents($sTable,$aColumns = 'ALL', $sExtraSQL = '', $debug =
     if(array_search($sTable,array("attachments","bans","forms","post","report","sessions","topic","users","warn",'', 'log')) !== false && ($rawinput == NULL || $rawinput == "")){
         $aReturn = int_to_time($sTable,$aReturn);
     }
-    if(count($timecols)> 0){
+    if(count_null_as_zero($timecols)> 0){
         global $site_settings;
-        for ($i = 0; $i < count($aReturn); $i++) {
-            for ($j = 0; $j < count($timecols); $j++) {
+        for ($i = 0; $i < count_null_as_zero($aReturn); $i++) {
+            for ($j = 0; $j < count_null_as_zero($timecols); $j++) {
                 $aReturn[$i][$timecols[$j]."_timestamp"] = $aReturn[$i][$timecols[$j]];
                 if($aReturn[$i][$timecols[$j]] == "0"){
                     $aReturn[$i][$timecols[$j]] = "Never";
@@ -882,8 +898,8 @@ function int_to_time($table_name,$table_data){
     );
     $times = explode("|",$time_columns[$table_name]);
     //dbg();
-    for($i= 0;$i < count($table_data); $i++){
-        for($j= 0;$j < count($times); $j++){
+    for($i= 0;$i < count_null_as_zero($table_data); $i++){
+        for($j= 0;$j < count_null_as_zero($times); $j++){
             if($site_settings['time_format']== "0"){
                 $table_data[$i][$times[$j]."_timestamp"] = $table_data[$i][$times[$j]];
                 $table_data[$i][$times[$j]] = "INVALid_time_format";
@@ -998,7 +1014,7 @@ function define_globals(){
 	if (!$SITE_GLOBALS){
 		$keys = array_keys($general);
 		$result = _mysql_query('SELECT * FROM general');
-		for($i = 1;$i < count($keys);$i++) {//0th is this
+		for($i = 1;$i < count_null_as_zero($keys);$i++) {//0th is this
 			$SITE_GLOBALS[$general[$keys[$i]]["name"]] = _mysql_result($result, 0 , $general[$keys[$i]]["name"]);
 		}
 	}
@@ -1164,7 +1180,7 @@ function redirect($time, $url){
 
 function build_url_relative($params){
     $ret = "?";
-    for($i=0; $i < count($params); $i++){
+    for($i=0; $i < count_null_as_zero($params); $i++){
         if($i == 0){
             $ret .= $params[$i] ."=". $_GET[$params[$i]];
         }else{
