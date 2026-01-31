@@ -102,11 +102,13 @@ function bbcode_to_regex($tags, $bbcode_key = 'bbcode', $html_key = 'HTML'){
 		$offset = 1; //Some regular exprssions are larger than 1 match
 		//Assemble pattern and replacement
 		$bbcode = str_replace($escape_search,$escape_replace,$bbcode);
-		for ($n = 1; $n <= count($match); $n++){
-			$bbcode = str_replace($match[$n]['original'],$match[$n]['pattern'],$bbcode);
-			$bbcode_html = str_replace($match[$n]['original'],'\\'.$offset,$bbcode_html);
-			$offset += $match[$n]['size'];
-		}
+        if(count($matches) > 0){
+            for ($n = 1; $n <= count($match); $n++){
+                $bbcode = str_replace($match[$n]['original'],$match[$n]['pattern'],$bbcode);
+                $bbcode_html = str_replace($match[$n]['original'],'\\'.$offset,$bbcode_html);
+                $offset += $match[$n]['size'];
+            }
+        }
 		$bbcode = '#'.$bbcode.'#si';
                 
 		//Get bb code name
